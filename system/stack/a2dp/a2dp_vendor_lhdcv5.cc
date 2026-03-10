@@ -59,7 +59,9 @@ typedef struct {
   bool hasFeatureLLESS;                                 /* FeatureSupported: Lossless enable/disable (standard 48 KHz) */
   bool hasFeatureLLESS24Bit;                            /* Lossless extended configurable: 24 bit-per-sample */
   bool hasFeatureLLESS96K;                              /* Lossless extended configurable: 96 KHz */
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   bool hasFeatureLLESSRaw;                              /* FeatureSupported: Lossless Raw mode (standard 48 KHz) */
+#endif
   bool hasFeatureNewMmBR;                               /* FeatureSupported: new max/min bitrate settings */
   bool hasFeaturebr128kbps;                             /* FeatureSupported: improved quality bitrate (128kbps) */
 } tA2DP_LHDCV5_CIE;
@@ -95,8 +97,10 @@ static const tA2DP_LHDCV5_CIE a2dp_lhdcv5_source_caps = {
     false,
     // Lossless extended configurable: 96 KHz
     false,
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
     // FeatureSupported: Lossless Raw mode (standard 48 KHz)
     false,
+#endif
     // newMmBR
     true,
     // br128kbps
@@ -133,8 +137,10 @@ static const tA2DP_LHDCV5_CIE a2dp_lhdcv5_source_default_caps = {
     false,
     // Lossless extended configurable: 96 KHz
     false,
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
     // FeatureSupported: Lossless Raw mode (standard 48 KHz)
     false,
+#endif
     // newMmBR
     true,
     // br128kbps
@@ -172,8 +178,10 @@ static const tA2DP_LHDCV5_CIE a2dp_lhdcv5_sink_caps = {
     false,
     // Lossless extended configurable: 96 KHz
     false,
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
     // FeatureSupported: Lossless Raw mode (standard 48 KHz  16 Bits)
     false,
+#endif
     // newMmBR
     true,
     // br128kbps
@@ -210,8 +218,10 @@ UNUSED_ATTR static const tA2DP_LHDCV5_CIE a2dp_lhdcv5_sink_default_caps = {
     false,
     // Lossless extended configurable: 96 KHz
     false,
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
     // FeatureSupported: Lossless Raw mode (standard 48 KHz)
     false,
+#endif
     // newMmBR
     true,
     // br128kbps
@@ -253,6 +263,7 @@ static const tA2DP_LHDC_FEATURE_POS a2dp_lhdcv5_source_spec_LLESS = {
     (0x1ULL << LHDCV5_FEATURE_LLESS_SPEC_BIT_POS),
 };
 
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
 // info of feature: LossLess Raw
 static const tA2DP_LHDC_FEATURE_POS a2dp_lhdcv5_source_spec_LLESS_RAW = {
     LHDCV5_FEATURE_CODE_LLESS_RAW,
@@ -260,12 +271,14 @@ static const tA2DP_LHDC_FEATURE_POS a2dp_lhdcv5_source_spec_LLESS_RAW = {
     LHDCV5_FEATURE_LLESS_RAW_SPEC_BIT_POS,
     (0x1ULL << LHDCV5_FEATURE_LLESS_RAW_SPEC_BIT_POS),
 };
-
+#endif
 
 UNUSED_ATTR static const tA2DP_LHDC_FEATURE_POS a2dp_lhdcv5_source_spec_all[] = {
     a2dp_lhdcv5_source_spec_LL,
     a2dp_lhdcv5_source_spec_LLESS,
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
     a2dp_lhdcv5_source_spec_LLESS_RAW,
+#endif
 };
 
 
@@ -746,11 +759,13 @@ static bool A2DP_IsFeatureInUserConfigLhdcV5(tA2DP_CODEC_CONFIGS_PACK* cfgsPtr, 
       return LHDCV5_CHECK_IN_A2DP_SPEC(cfgsPtr->_codec_user_config_,
           a2dp_lhdcv5_source_spec_LLESS.inSpecBank, a2dp_lhdcv5_source_spec_LLESS.value);
     } break;
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
     case LHDCV5_FEATURE_CODE_LLESS_RAW:
     {
       return LHDCV5_CHECK_IN_A2DP_SPEC(cfgsPtr->_codec_user_config_,
           a2dp_lhdcv5_source_spec_LLESS_RAW.inSpecBank, a2dp_lhdcv5_source_spec_LLESS_RAW.value);
     } break;
+#endif
     default:
       break;
     }
@@ -777,11 +792,13 @@ static bool A2DP_IsFeatureInCodecConfigLhdcV5(tA2DP_CODEC_CONFIGS_PACK* cfgsPtr,
       return LHDCV5_CHECK_IN_A2DP_SPEC(cfgsPtr->_codec_config_,
           a2dp_lhdcv5_source_spec_LLESS.inSpecBank, a2dp_lhdcv5_source_spec_LLESS.value);
     } break;
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
     case LHDCV5_FEATURE_CODE_LLESS_RAW:
     {
       return LHDCV5_CHECK_IN_A2DP_SPEC(cfgsPtr->_codec_config_,
           a2dp_lhdcv5_source_spec_LLESS_RAW.inSpecBank, a2dp_lhdcv5_source_spec_LLESS_RAW.value);
     } break;
+#endif
     default:
       break;
   }
@@ -831,10 +848,12 @@ static void A2DP_UpdateFeatureToA2dpConfigLhdcV5(tA2DP_CODEC_CONFIGS_PACK *cfgsP
       A2DP_UpdateFeatureToSpecLhdcV5(cfgsPtr, toCodecCfg, hasFeature,
           a2dp_lhdcv5_source_spec_LLESS.inSpecBank, a2dp_lhdcv5_source_spec_LLESS.value);
       break;
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
     case LHDCV5_FEATURE_CODE_LLESS_RAW:
       A2DP_UpdateFeatureToSpecLhdcV5(cfgsPtr, toCodecCfg, hasFeature,
           a2dp_lhdcv5_source_spec_LLESS_RAW.inSpecBank, a2dp_lhdcv5_source_spec_LLESS_RAW.value);
       break;
+#endif
     default:
       break;
   }
@@ -981,9 +1000,11 @@ static tA2DP_STATUS A2DP_BuildInfoLhdcV5(uint8_t media_type,
   // P10[6] hasFeatureNewMmBR
   // P10[5] hasFeaturebr128kbps
   // P10[3:1] exMBR
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   if (p_ie->hasFeatureLLESSRaw) {
     para |= A2DP_LHDCV5_FEATURE_LLESS_RAW;
   }
+#endif
   if (p_ie->hasFeatureNewMmBR) {
     para |= A2DP_LHDCV5_FEATURE_newMmBR;
   }
@@ -1121,7 +1142,9 @@ static tA2DP_STATUS A2DP_ParseInfoLhdcV5(tA2DP_LHDCV5_CIE* p_ie,
   // P10[6] hasFeatureNewMmBR
   // P10[5] hasFeaturebr128kbps
   // P10[3:1] hasFeaturebrExMBR
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   p_ie->hasFeatureLLESSRaw = ((*p_codec_info & A2DP_LHDCV5_FEATURE_LLESS_RAW) != 0) ? true : false;
+#endif
   p_ie->hasFeatureNewMmBR = ((*p_codec_info & A2DP_LHDCV5_FEATURE_newMmBR) != 0) ? true : false;
   p_ie->hasFeaturebr128kbps = ((*p_codec_info & A2DP_LHDCV5_FEATURE_128KBPS) != 0) ? true : false;
   p_ie->exMBR = (*p_codec_info & A2DP_LHDCV5_EXMBR_MASK);
@@ -1134,7 +1157,7 @@ static tA2DP_STATUS A2DP_ParseInfoLhdcV5(tA2DP_LHDCV5_CIE* p_ie,
 
   log::info( ": Role:{} isCap:{} SR:0x{:02X} Bits:0x{:02X} Ver:0x{:02X} FL:0x{:02X} FLS:0x{:02X} "
       "maxBR:0x{:02X} minBR:0x{:02X} exMBR:0x{:02X} "
-      "[LL({}) LLESS({}) LLESS24({}) LLESS96K({}) LLESSRaw({}) newMmBR({}) br128({})]",
+      "[LL({}) LLESS({}) LLESS24({}) LLESS96K({}) LLESSRaw(Disabled) newMmBR({}) br128({})]",
       (is_source?"SRC":"SNK"),
       is_capability,
       p_ie->sampleRate,
@@ -1149,7 +1172,9 @@ static tA2DP_STATUS A2DP_ParseInfoLhdcV5(tA2DP_LHDCV5_CIE* p_ie,
       p_ie->hasFeatureLLESS,
       p_ie->hasFeatureLLESS24Bit,
       p_ie->hasFeatureLLESS96K,
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
       p_ie->hasFeatureLLESSRaw,
+#endif
       p_ie->hasFeatureNewMmBR,
       p_ie->hasFeaturebr128kbps);
 
@@ -1336,8 +1361,12 @@ bool A2DP_VendorCodecEqualsLhdcV5(const uint8_t* p_codec_info_a,
       (lhdc_cie_a.channelMode == lhdc_cie_b.channelMode) &&
       (lhdc_cie_a.frameLenType == lhdc_cie_b.frameLenType) &&
       (lhdc_cie_a.hasFeatureLL == lhdc_cie_b.hasFeatureLL) &&
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
       (lhdc_cie_a.hasFeatureLLESS == lhdc_cie_b.hasFeatureLLESS &&
       (lhdc_cie_a.hasFeatureLLESSRaw == lhdc_cie_b.hasFeatureLLESSRaw));
+#else
+      (lhdc_cie_a.hasFeatureLLESS == lhdc_cie_b.hasFeatureLLESS);
+#endif
 
   return ret;
 }
@@ -2504,6 +2533,7 @@ tA2DP_STATUS A2dpCodecConfigLhdcV5Base::setCodecConfig(const uint8_t* p_peer_cod
         (hasUserSet?true:false));
     log::info( ": LHDC features tag check fail, default UI status[LLESS] => {}",  hasUserSet?"true":"false");
 
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
     // Feature: Lossless Raw(default UI: OFF)
     hasUserSet = false;
     A2DP_UpdateFeatureToA2dpConfigLhdcV5(
@@ -2512,6 +2542,7 @@ tA2DP_STATUS A2dpCodecConfigLhdcV5Base::setCodecConfig(const uint8_t* p_peer_cod
         A2DP_LHDC_TO_A2DP_CODEC_USER_,
         (hasUserSet?true:false));
     log::info( ": LHDC features tag check fail, default UI status[LLESS Raw] => {}",  hasUserSet?"true":"false");
+#endif
   }
 
   /*************************************************
@@ -2638,6 +2669,7 @@ tA2DP_STATUS A2dpCodecConfigLhdcV5Base::setCodecConfig(const uint8_t* p_peer_cod
         p_a2dp_lhdcv5_caps->hasFeatureLLESS96K);
   }
 
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   /*******************************************
    *  Lossless Raw ON/OFF:
    *    SRC + is_capability: SRC control
@@ -2695,6 +2727,7 @@ tA2DP_STATUS A2dpCodecConfigLhdcV5Base::setCodecConfig(const uint8_t* p_peer_cod
         p_a2dp_lhdcv5_caps->hasFeatureLLESSRaw,
         (hasUserSet?"Y":"N"));
   }
+#endif
 
   //
   // max/min bitrate
@@ -2999,7 +3032,9 @@ tA2DP_STATUS A2dpCodecConfigLhdcV5Base::setCodecConfig(const uint8_t* p_peer_cod
 
   log::info( ": Final => FeatureLLESS: {}", (result_config_cie.hasFeatureLLESS?"Y":"N"));
 
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   log::info( ": Final => FeatureLLESSRaw: {}", (result_config_cie.hasFeatureLLESSRaw?"Y":"N"));
+#endif
 
   log::info( ": Final => newMmBR: {}", (result_config_cie.hasFeatureNewMmBR?"Y":"N"));
 
@@ -3336,6 +3371,7 @@ bool A2DP_VendorHasLLessFlagLhdcV5(uint8_t *retval, const uint8_t* p_codec_info)
   return true;
 }
 
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
 bool A2DP_VendorHasLLessRawFlagLhdcV5(uint8_t *retval, const uint8_t* p_codec_info){
   tA2DP_LHDCV5_CIE lhdc_cie;
   tA2DP_STATUS a2dp_status;
@@ -3356,6 +3392,7 @@ bool A2DP_VendorHasLLessRawFlagLhdcV5(uint8_t *retval, const uint8_t* p_codec_in
 
   return true;
 }
+#endif
 
 bool A2DP_VendorHasNewMmBRFlagLhdcV5(uint8_t *retval, const uint8_t* p_codec_info){
   tA2DP_LHDCV5_CIE lhdc_cie;

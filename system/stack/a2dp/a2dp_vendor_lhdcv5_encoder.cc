@@ -98,8 +98,10 @@ typedef int32_t (*tLHDC_ENCODE)(HANDLE_LHDCV5_BT hLhdcParam,
     void *pInPcm, uint32_t pcmBytes, uint8_t *pOutBuf, uint32_t outBufBytes,
     uint32_t *pOutByte, uint32_t *pOut_frames);
 
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
 static const char* LHDC_SET_LOSSLESS_RAW_ENABLE = "lhdcv5BT_set_lossless_raw_enable";
 typedef int32_t (*tLHDC_SET_LOSSLESS_RAW_ENABLE)(HANDLE_LHDCV5_BT hLhdcParam, uint32_t enabled);
+#endif
 
 static const char* LHDC_SET_IMPROVED_LOW_BITRATE = "lhdcv5BT_set_improved_low_bitrate";
 typedef int32_t (*tLHDC_SET_IMPROVED_LOW_BITRATE)(HANDLE_LHDCV5_BT hLhdcParam, uint32_t enable);
@@ -114,7 +116,9 @@ static tLHDC_AUTO_ADJUST_BITRATE lhdc_auto_adjust_bitrate;
 static tLHDC_INIT_ENCODER lhdc_init_encoder;
 static tLHDC_GET_BLOCK_SIZE lhdc_get_block_size;
 static tLHDC_ENCODE lhdc_encode_func;
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
 static tLHDC_SET_LOSSLESS_RAW_ENABLE lhdc_set_lossless_raw_enable;
+#endif
 static tLHDC_SET_IMPROVED_LOW_BITRATE lhdc_set_improved_low_bitrate;
 
 // A2DP LHDC encoder interval in milliseconds
@@ -138,7 +142,9 @@ typedef struct {
   uint32_t min_target_bitrate_idx;
   uint8_t isLLEnabled;
   uint8_t isLLessEnabled;
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   uint8_t isLLessRawEnabled;
+#endif
   uint8_t isNewMmBREnabled;
   uint8_t isBr128kbpsEnabled;
 } tA2DP_LHDCV5_ENCODER_PARAMS;
@@ -253,7 +259,9 @@ bool A2DP_VendorLoadEncoderLhdcV5(void) {
   lhdc_init_encoder = nullptr;
   lhdc_get_block_size =nullptr;
   lhdc_encode_func = nullptr;
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   lhdc_set_lossless_raw_enable = nullptr;
+#endif
   lhdc_set_improved_low_bitrate = nullptr;
 
   // Load all APIs
@@ -277,8 +285,10 @@ bool A2DP_VendorLoadEncoderLhdcV5(void) {
   if (lhdc_get_block_size == nullptr) return false;
   lhdc_encode_func = (tLHDC_ENCODE)load_func(LHDC_ENCODE_NAME);
   if (lhdc_encode_func == nullptr) return false;
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   lhdc_set_lossless_raw_enable = (tLHDC_SET_LOSSLESS_RAW_ENABLE)load_func(LHDC_SET_LOSSLESS_RAW_ENABLE);
   if (lhdc_set_lossless_raw_enable == nullptr) return false;
+#endif
   lhdc_set_improved_low_bitrate = (tLHDC_SET_IMPROVED_LOW_BITRATE)load_func(LHDC_SET_IMPROVED_LOW_BITRATE);
   if (lhdc_set_improved_low_bitrate == nullptr) return false;
 
@@ -315,7 +325,9 @@ bool A2DP_VendorUnloadEncoderLhdcV5(void) {
   lhdc_init_encoder = nullptr;
   lhdc_get_block_size =nullptr;
   lhdc_encode_func = nullptr;
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   lhdc_set_lossless_raw_enable = nullptr;
+#endif
   lhdc_set_improved_low_bitrate = nullptr;
 
   dlclose(lhdc_encoder_lib_handle);
@@ -613,10 +625,12 @@ static void a2dp_vendor_lhdcv5_encoder_update(uint16_t peer_mtu,
     goto fail;
   }
 
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   if (!A2DP_VendorHasLLessRawFlagLhdcV5(&(p_encoder_params->isLLessRawEnabled), p_codec_info)){
     log::error( ": get Lossless raw mode status error");
     goto fail;
   }
+#endif
 
   // newMmBR flag
   if (!A2DP_VendorHasNewMmBRFlagLhdcV5(&(p_encoder_params->isNewMmBREnabled), p_codec_info)){
@@ -658,7 +672,7 @@ static void a2dp_vendor_lhdcv5_encoder_update(uint16_t peer_mtu,
   }
 
   log::info( ": (encode param) sample_rate={} pcm_fmt={} frm_dur={} peer_mtu={} mtu={} "
-      "MBRidx={} mBRidx={} LL={} LLess={} Raw={} newMmBR={} br128={} QM={}({})",
+      "MBRidx={} mBRidx={} LL={} LLess={} Raw=Disabled newMmBR={} br128={} QM={}({})",
       p_encoder_params->sample_rate,                //44100, 48000, ...
       p_encoder_params->pcm_fmt,                    //16, 24, 32...
       frame_dur,                                    //encode frame duration
@@ -667,7 +681,9 @@ static void a2dp_vendor_lhdcv5_encoder_update(uint16_t peer_mtu,
       p_encoder_params->min_target_bitrate_idx,         //min bitrate index
       p_encoder_params->isLLEnabled,
       p_encoder_params->isLLessEnabled,
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
       p_encoder_params->isLLessRawEnabled,
+#endif
       p_encoder_params->isNewMmBREnabled,
       p_encoder_params->isBr128kbpsEnabled,
       quality_mode_index_to_name(p_encoder_params->quality_mode_index).c_str(),
@@ -703,6 +719,7 @@ static void a2dp_vendor_lhdcv5_encoder_update(uint16_t peer_mtu,
   }
 
   //// setup features
+#ifdef LHDC_LOSSLESS_RAW_SUPPORT
   // lossless raw mode:
   lib_ret = lhdc_set_lossless_raw_enable(a2dp_lhdc_encoder_cb.lhdc_handle,
       p_encoder_params->isLLessRawEnabled);
@@ -711,6 +728,7 @@ static void a2dp_vendor_lhdcv5_encoder_update(uint16_t peer_mtu,
     goto fail;
   }
   log::info( ": set lossless raw enable {}",  p_encoder_params->isLLessRawEnabled);
+#endif
 
   // improved low bitrate:
   lib_ret = lhdc_set_improved_low_bitrate(a2dp_lhdc_encoder_cb.lhdc_handle,
