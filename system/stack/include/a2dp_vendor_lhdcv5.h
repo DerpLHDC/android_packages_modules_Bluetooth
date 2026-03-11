@@ -26,8 +26,8 @@
 #include "a2dp_vendor_lhdcv5_constants.h"
 #include "avdt_api.h"
 
-/* lossless raw mode support */
-//#define LHDC_LOSSLESS_RAW_SUPPORT
+/* New features (V5.2.5+) support */
+//#define LHDC_NEW_FEATURES_SUPPORT
 
 #define IS_SRC  (true)
 #define IS_SNK  (false)
